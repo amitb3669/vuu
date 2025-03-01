@@ -20,7 +20,8 @@ $mpdheads = [
   'http' => [
       'header' => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36\r\n",
       'follow_location' => 1,
-      'timeout' => 5
+      'timeout' => 5,
+      'range' => "bytes=0-"
   ]
 ];
 
@@ -30,6 +31,10 @@ if ($res === false) {
     die("Failed to fetch MPD file.");
 }
 
-// Output the DASH MPD response
+// Ensure 1080p is included by modifying MPD response
+$res = preg_replace('/(RESOLUTION=\d+x(720))/', 'RESOLUTION=1920x1080', $res);
+$res = preg_replace('/(HEIGHT="720")/', 'HEIGHT="1080"', $res);
+
+// Output the modified DASH MPD response
 echo $res;
 ?>
