@@ -14,7 +14,7 @@ if (!$get) {
     die("No stream identifier provided");
 }
 
-$mpdUrl = 'https://linearjitp-playback.astro.com.my/dash-wv/linear/' . $get;
+$mpdUrl = 'https://linearjitp02-playback.astro.com.my/dash-wv/linear/' . $get;
 
 $mpdheads = [
   'http' => [
