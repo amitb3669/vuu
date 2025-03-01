@@ -1,26 +1,9 @@
 <?php
-// Allowed domain
-$allowedDomain = "allinonereborn.com";
-
-// Get Referer and Origin headers
-$referer = isset($_SERVER['HTTP_REFERER']) ? parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST) : '';
-$origin = isset($_SERVER['HTTP_ORIGIN']) ? parse_url($_SERVER['HTTP_ORIGIN'], PHP_URL_HOST) : '';
-
-// Check if the request is coming from the allowed domain
-if ($referer !== $allowedDomain && $origin !== $allowedDomain) {
-    header("Location: https://t.me/allinone_reborn");
-    exit();
-}
-
-// Prevent embedding in other websites
-header("X-Frame-Options: SAMEORIGIN");
-header("Content-Security-Policy: frame-ancestors 'self';");
-
-// Allow CORS only for your domain
-header("Access-Control-Allow-Origin: https://$allowedDomain");
+// Allow cross-origin access to support web-based players
+header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: *");
-header("Content-Type: application/dash+xml");
+header("Content-Type: application/dash+xml"); // Changed for DASH MPD
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
