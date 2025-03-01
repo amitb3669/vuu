@@ -31,9 +31,16 @@ if ($res === false) {
     die("Failed to fetch MPD file.");
 }
 
-// Ensure 1080p is included by modifying MPD response
-$res = preg_replace('/(RESOLUTION=\d+x(720))/', 'RESOLUTION=1920x1080', $res);
-$res = preg_replace('/(HEIGHT="720")/', 'HEIGHT="1080"', $res);
+// Log available resolutions in the MPD file
+preg_match_all('/RESOLUTION=(\d+x\d+)/', $res, $matches);
+$availableResolutions = $matches[1] ?? [];
+error_log("Available resolutions: " . implode(', ', $availableResolutions));
+
+// If 1080p is available, force its selection
+if (in_array('1920x1080', $availableResolutions)) {
+    $res = preg_replace('/(RESOLUTION=\d+x720)/', 'RESOLUTION=1920x1080', $res);
+    $res = preg_replace('/(HEIGHT="720")/', 'HEIGHT="1080"', $res);
+}
 
 // Output the modified DASH MPD response
 echo $res;
