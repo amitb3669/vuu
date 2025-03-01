@@ -20,17 +20,26 @@ if (!$response) {
     exit;
 }
 
-// Add 1080p Representation
-$representation1080p = '
+// Define the 1080p representations
+$representation1080p_1 = '
 <Representation bandwidth="3000000" height="1080" width="1920" codecs="avc1.640032" frameRate="25000/1000" id="164/video-cif-stream-6" />
 ';
 
-// Insert 1080p inside the <AdaptationSet> for video
-$mpd_modified = preg_replace(
-    '/(<AdaptationSet[^>]*contentType="video"[^>]*>)/',
-    '$1' . $representation1080p,
-    $response
-);
+$representation1080p_2 = '
+<Representation bandwidth="4000000" height="1080" width="1920" codecs="avc1.64002a" frameRate="50000/1000" id="164/video-cif-stream-7" />
+';
+
+// Check if 1080p is already present
+if (!str_contains($response, 'height="1080"')) {
+    // Insert 1080p inside the <AdaptationSet> for video
+    $mpd_modified = preg_replace(
+        '/(<AdaptationSet[^>]*contentType="video"[^>]*>)/',
+        '$1' . $representation1080p_1 . $representation1080p_2,
+        $response
+    );
+} else {
+    $mpd_modified = $response; // Keep the original if 1080p exists
+}
 
 // Serve the modified MPD file
 echo $mpd_modified;
