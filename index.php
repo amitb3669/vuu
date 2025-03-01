@@ -1,35 +1,37 @@
 <?php
-// Allow cross-origin access to support web-based players
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Access-Control-Allow-Headers: *");
-header("Content-Type: application/dash+xml"); // Changed for DASH MPD
-header("Cache-Control: no-cache, no-store, must-revalidate");
-header("Pragma: no-cache");
-header("Expires: 0");
+error_reporting(0);
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/dash+xml');
 
-// Fetch the DASH stream URL
-$get = isset($_GET['get']) ? $_GET['get'] : '';
+// Get the MPD parameter from the URL
+$get = $_GET['get'] ?? '';
+
 if (!$get) {
-    die("No stream identifier provided");
+    echo json_encode(["error" => "No MPD identifier provided"]);
+    exit;
 }
 
+// Fetch the original MPD file from Astro
 $mpdUrl = 'https://linearjitp-playback.astro.com.my/dash-wv/linear/' . $get;
+$response = file_get_contents($mpdUrl);
 
-$mpdheads = [
-  'http' => [
-      'header' => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36\r\n",
-      'follow_location' => 1,
-      'timeout' => 5
-  ]
-];
-
-$context = stream_context_create($mpdheads);
-$res = file_get_contents($mpdUrl, false, $context);
-if ($res === false) {
-    die("Failed to fetch MPD file.");
+if (!$response) {
+    echo json_encode(["error" => "Failed to fetch MPD"]);
+    exit;
 }
 
-// Output the DASH MPD response
-echo $res;
+// Add 1080p Representation
+$representation1080p = '
+<Representation bandwidth="3000000" height="1080" width="1920" codecs="avc1.640032" frameRate="25000/1000" id="164/video-cif-stream-6" />
+';
+
+// Insert 1080p inside the <AdaptationSet> for video
+$mpd_modified = preg_replace(
+    '/(<AdaptationSet[^>]*contentType="video"[^>]*>)/',
+    '$1' . $representation1080p,
+    $response
+);
+
+// Serve the modified MPD file
+echo $mpd_modified;
 ?>
